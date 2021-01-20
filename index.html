@@ -24,7 +24,7 @@
         <div class="row">
             <div id="modeTile" class="col-6 text-center bg-success">
                 <h3 class="text-white">Mode</h3> <br>
-                <select name="mode" id="mode" class="form-control mb-2">
+                <select name="mode" id="mode" class="form-control mb-2 text-center">
                     <option value="off">OFF</option>
                     <option value="normal">Normal</option>
                     <option value="color">Pas d'automatisme</option>
@@ -73,14 +73,16 @@
         width: height / 4,
         color: '#fff',
         id: 'color',
-        layoutDirection: 'horizontal'
+        sliderSize: 0
     });
     colorPicker.on('input:end', function(color) {
-        console.log(color.hexString);
+        rgb = color.rgb;
+        setColor(rgb.r, rgb.g, rgb.b)
     });
 
     $("#bright").change(function(){
         $("#valBright").html($("#bright").val() + " %");
+        setBright($("#bright").val())
     });
 
     $("#mode").change(function(){
@@ -91,6 +93,8 @@
 
                 $("#color").css("display", "none");
                 $("#colorTile").removeClass("bg-dark").addClass("bg-disabled");
+
+                setPower('off')
                 break;
             case "normal":
                 $("#bright").attr("disabled", false);
@@ -98,6 +102,8 @@
 
                 $("#color").css("display", "block");
                 $("#colorTile").removeClass("bg-disabled").addClass("bg-dark");
+
+                setPower('on')
                 break;
             case "color":
                 $("#bright").attr("disabled", false);
@@ -105,20 +111,51 @@
 
                 $("#color").css("display", "block");
                 $("#colorTile").removeClass("bg-disabled").addClass("bg-dark");
+
+                setPower('on')
                 break;
             case "print":
                 $("#bright").val(30);
-                $("#valBright").val('30 %');
+                $("#valBright").html("30 %");
                 $("#bright").attr("disabled", true);
                 $("#brightTile").removeClass("bg-info").addClass("bg-disabled");
 
                 $("#color").css("display", "block");
                 $("#colorTile").removeClass("bg-disabled").addClass("bg-dark");
+
+                setPower('on')
                 
                 colorPicker.color.rgb = {r:255, g:0, b:0};
+
+                setColor(255, 0, 0)
+                setBright(30)
 
                 break;
         }
     })
+
+    function setPower(bool)
+    {
+        $.ajax({
+            method: 'GET',
+            url: 'http://192.168.1.24:5395/chamber/setPower/' + bool
+        })
+    }
+
+    function setColor(r, g, b)
+    {
+        $.ajax({
+            method: 'GET',
+            url: "http://192.168.1.24:5395/chamber/setColor/" + r + ";" + g + ";" + b
+        });
+    }
+
+    function setBright(bright)
+    {
+        $.ajax({
+            method: 'GET',
+            url: "http://192.168.1.24:5395/chamber/setBright/" + bright
+        });
+    }
 </script>
 </html>
